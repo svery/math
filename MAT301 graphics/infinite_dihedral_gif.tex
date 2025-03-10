@@ -1,0 +1,55 @@
+\documentclass{standalone}
+\usepackage[export]{animate}
+\usepackage{tikz,ifthen}
+\usetikzlibrary{calc}
+\newdimen\XCoord
+\newdimen\YCoord
+\newcommand*{\ExtractCoordinate}[1]{\path (#1); \pgfgetlastxy{\XCoord}{\YCoord};}%
+
+\begin{document}
+	\pgfmathsetmacro{\sl}{1.5}
+	\pgfmathsetmacro{\slh}{\sl/2}
+	\pgfmathsetmacro{\maxn}{124}
+	\begin{animateinline}[controls]{5}
+		\multiframe{120}{n=3+1}{
+			\begin{tikzpicture}
+				\pgfmathsetmacro{\htw}{11.45}
+				\pgfmathsetmacro{\th}{16.6}
+				\coordinate (A) at (-\htw, -0.5);
+				\coordinate (B) at (\htw, -0.5);
+				\coordinate (C) at (-\htw, \th);
+				\coordinate (D) at (\htw, \th);
+				\clip (A) -- (B) -- (D) -- (C) -- (A);
+				\pgfmathsetmacro{\line}{int(\maxn/6)-1}
+				\pgfmathsetmacro{\linem}{int(\maxn/6)}
+				\pgfmathsetmacro{\linelength}{int(\maxn/6*\sl)}
+				\draw[very thick] (-\linelength, 0) -- (\linelength, 0);
+				\foreach \x in {-\line,..., \linem}{
+					\pgfmathsetmacro{\ptpos}{\x*\sl-\slh}
+					\node[circle, inner sep = 0pt, minimum size = 1mm, fill=black] at (\ptpos, 0) { };
+				}
+				\def\half{\coordinate (old) at (-\slh, 0);
+					\pgfmathsetmacro{\ang}{(\n-2)/\n*180}
+					\pgfmathsetmacro{\circang}{360/\n}
+					\pgfmathsetmacro{\m}{int(\n/2)}
+					\pgfmathsetmacro{\hue}{((\n-3)/(\maxn-3))*0.8}
+					\definecolor{mycolor}{rgb:hsb}{\hue,1,1}
+					\foreach \x in {1,..., \m} {
+						\ExtractCoordinate{old}
+						\pgfmathsetmacro{\xval}{int(\XCoord/28)}
+						\ifthenelse{\xval<-11 \AND \n>52}{\breakforeach}{
+							\pgfmathsetmacro{\altang}{\ang-(\x-1)*\circang}
+							\draw[color=mycolor] (old) -- +(\altang:\sl) node[circle, inner sep=0pt, minimum size = 1mm, fill=mycolor] (old) {};
+					}}
+				}
+				\begin{scope}
+					\half
+				\end{scope}
+				\begin{scope}[xscale=-1]
+					\half
+				\end{scope}
+			\end{tikzpicture}
+		}
+	\end{animateinline}
+\end{document}
+
